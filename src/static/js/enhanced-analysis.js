@@ -1,6 +1,6 @@
 /**
  * ARQV30 Enhanced - JavaScript Principal
- * Funcionalidades avançadas para análise de mercado
+ * Funcionalidades avançadas para análise de mercado com barra de progresso precisa
  */
 
 // Estado global da aplicação
@@ -8,14 +8,24 @@ const AppState = {
     sessionId: generateSessionId(),
     attachments: [],
     currentAnalysis: null,
-    isAnalyzing: false
+    isAnalyzing: false,
+    progressInterval: null,
+    startTime: null
 };
 
 // Configurações
 const CONFIG = {
     maxFileSize: 10 * 1024 * 1024, // 10MB
     allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'json', 'csv', 'xlsx', 'xls'],
-    apiBaseUrl: '/api'
+    apiBaseUrl: '/api',
+    progressSteps: [
+        { name: 'Processando dados do formulário', duration: 2000 },
+        { name: 'Analisando anexos enviados', duration: 3000 },
+        { name: 'Realizando busca profunda na internet', duration: 8000 },
+        { name: 'Executando análise com Gemini Pro', duration: 15000 },
+        { name: 'Consolidando insights e resultados', duration: 5000 },
+        { name: 'Finalizando análise ultra-detalhada', duration: 2000 }
+    ]
 };
 
 /**
@@ -63,14 +73,16 @@ function updateStatusIndicator(data) {
     const statusDot = document.querySelector('.status-dot');
     const versionInfo = document.getElementById('version-info');
     
-    if (data.status === 'running') {
-        statusText.textContent = 'Sistema Online';
-        statusText.style.color = '#10b981';
-        statusDot.style.background = '#10b981';
-    } else {
-        statusText.textContent = data.message || 'Sistema com Problemas';
-        statusText.style.color = '#ef4444';
-        statusDot.style.background = '#ef4444';
+    if (statusText) {
+        if (data.status === 'running') {
+            statusText.textContent = 'Sistema Online';
+            statusText.style.color = '#34a853';
+            if (statusDot) statusDot.style.background = '#34a853';
+        } else {
+            statusText.textContent = data.message || 'Sistema com Problemas';
+            statusText.style.color = '#ea4335';
+            if (statusDot) statusDot.style.background = '#ea4335';
+        }
     }
     
     if (versionInfo) {
@@ -95,6 +107,8 @@ function logSystemInfo(data) {
 function initializeFileUpload() {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
+    
+    if (!uploadArea || !fileInput) return;
     
     // Click para selecionar arquivos
     uploadArea.addEventListener('click', () => fileInput.click());
@@ -188,6 +202,7 @@ function uploadFile(file) {
 
 function addAttachmentToList(file, attachmentId, status) {
     const attachmentList = document.getElementById('attachmentList');
+    if (!attachmentList) return;
     
     const attachmentItem = document.createElement('div');
     attachmentItem.className = 'attachment-item';
@@ -200,8 +215,8 @@ function addAttachmentToList(file, attachmentId, status) {
         <div class="attachment-info">
             <i class="${fileIcon} attachment-icon"></i>
             <div>
-                <div style="font-weight: 500;">${file.name}</div>
-                <div style="font-size: 0.8rem; color: #6b7280;">
+                <div style="font-weight: 500; color: var(--text-primary);">${file.name}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
                     ${formatFileSize(file.size)} • ${status === 'uploading' ? 'Processando...' : 'Pronto'}
                 </div>
             </div>
@@ -241,8 +256,8 @@ function updateAttachmentStatus(attachmentId, status, data) {
 function getStatusIcon(status) {
     switch (status) {
         case 'uploading': return 'fas fa-spinner fa-spin';
-        case 'success': return 'fas fa-check-circle text-green-500';
-        case 'error': return 'fas fa-exclamation-circle text-red-500';
+        case 'success': return 'fas fa-check-circle text-success';
+        case 'error': return 'fas fa-exclamation-circle text-error';
         default: return 'fas fa-file';
     }
 }
@@ -288,6 +303,8 @@ function removeAttachment(attachmentId) {
  */
 function initializeForm() {
     const form = document.getElementById('analysisForm');
+    if (!form) return;
+    
     form.addEventListener('submit', handleFormSubmit);
     
     // Validação em tempo real
@@ -344,11 +361,11 @@ function validateField(e) {
 function showFieldError(field, message) {
     clearFieldError(field);
     
-    field.style.borderColor = '#ef4444';
+    field.style.borderColor = '#ea4335';
     
     const errorDiv = document.createElement('div');
     errorDiv.className = 'field-error';
-    errorDiv.style.color = '#ef4444';
+    errorDiv.style.color = '#ea4335';
     errorDiv.style.fontSize = '0.8rem';
     errorDiv.style.marginTop = '4px';
     errorDiv.textContent = message;
@@ -366,18 +383,22 @@ function clearFieldError(field) {
 }
 
 /**
- * Sistema de análise
+ * Sistema de análise com barra de progresso precisa
  */
 function startAnalysis() {
     console.log('🔍 Iniciando análise ultra-detalhada');
     
     AppState.isAnalyzing = true;
+    AppState.startTime = Date.now();
     
     // Coletar dados do formulário
     const formData = collectFormData();
     
-    // Mostrar loading
+    // Mostrar loading com progresso
     showLoadingScreen();
+    
+    // Iniciar progresso simulado
+    startProgressSimulation();
     
     // Enviar para análise
     performAnalysis(formData);
@@ -406,45 +427,101 @@ function collectFormData() {
 }
 
 function showLoadingScreen() {
-    document.querySelector('.form-section').style.display = 'none';
-    document.getElementById('loadingSection').style.display = 'block';
+    const formSection = document.querySelector('.form-section');
+    const loadingSection = document.getElementById('loadingSection');
     
-    // Simular progresso
-    simulateProgress();
+    if (formSection) formSection.style.display = 'none';
+    if (loadingSection) loadingSection.style.display = 'block';
+    
+    // Criar estrutura de progresso se não existir
+    createProgressStructure();
 }
 
-function simulateProgress() {
-    const steps = [
-        'Processando dados do formulário...',
-        'Analisando anexos enviados...',
-        'Realizando busca profunda na internet...',
-        'Executando WebSailor para navegação avançada...',
-        'Processando com Gemini Pro 2.5...',
-        'Consolidando insights e resultados...',
-        'Finalizando análise ultra-detalhada...'
-    ];
+function createProgressStructure() {
+    const loadingSection = document.getElementById('loadingSection');
+    if (!loadingSection) return;
     
-    const progressSteps = document.getElementById('progressSteps');
-    const loadingStatus = document.getElementById('loadingStatus');
-    
-    let currentStep = 0;
-    
-    const interval = setInterval(() => {
-        if (currentStep < steps.length) {
-            const stepElement = document.createElement('div');
-            stepElement.className = 'progress-step';
-            stepElement.innerHTML = `✅ ${steps[currentStep]}`;
-            progressSteps.appendChild(stepElement);
+    loadingSection.innerHTML = `
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Processando Análise Ultra-Detalhada...</h3>
+            <p id="loadingStatus">Iniciando análise com IA avançada...</p>
             
-            if (currentStep + 1 < steps.length) {
-                loadingStatus.textContent = steps[currentStep + 1];
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-percentage" id="progressPercentage">0%</span>
+                    <span class="progress-eta" id="progressETA">Calculando tempo...</span>
+                </div>
+            </div>
+            
+            <div id="progressSteps" style="margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
+                <div class="progress-step">⏳ Processando dados do formulário...</div>
+            </div>
+        </div>
+    `;
+}
+
+function startProgressSimulation() {
+    let currentStep = 0;
+    let currentProgress = 0;
+    const totalDuration = CONFIG.progressSteps.reduce((sum, step) => sum + step.duration, 0);
+    
+    const progressBar = document.getElementById('progressBar');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressETA = document.getElementById('progressETA');
+    const loadingStatus = document.getElementById('loadingStatus');
+    const progressSteps = document.getElementById('progressSteps');
+    
+    function updateProgress() {
+        if (currentStep < CONFIG.progressSteps.length && AppState.isAnalyzing) {
+            const step = CONFIG.progressSteps[currentStep];
+            const stepProgress = Math.min(100, currentProgress + (100 / CONFIG.progressSteps.length));
+            
+            // Atualizar barra de progresso
+            if (progressBar) progressBar.style.width = `${stepProgress}%`;
+            if (progressPercentage) progressPercentage.textContent = `${Math.round(stepProgress)}%`;
+            
+            // Calcular ETA
+            const elapsed = Date.now() - AppState.startTime;
+            const estimatedTotal = (elapsed / stepProgress) * 100;
+            const remaining = Math.max(0, estimatedTotal - elapsed);
+            const etaMinutes = Math.ceil(remaining / 60000);
+            const etaSeconds = Math.ceil((remaining % 60000) / 1000);
+            
+            if (progressETA) {
+                if (etaMinutes > 0) {
+                    progressETA.textContent = `~${etaMinutes}min ${etaSeconds}s restantes`;
+                } else {
+                    progressETA.textContent = `~${etaSeconds}s restantes`;
+                }
             }
             
+            // Atualizar status
+            if (loadingStatus) loadingStatus.textContent = step.name;
+            
+            // Atualizar steps
+            if (progressSteps) {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'progress-step completed';
+                stepElement.innerHTML = `✅ ${step.name}`;
+                progressSteps.appendChild(stepElement);
+            }
+            
+            currentProgress = stepProgress;
             currentStep++;
-        } else {
-            clearInterval(interval);
+            
+            // Próximo step
+            if (currentStep < CONFIG.progressSteps.length) {
+                AppState.progressInterval = setTimeout(updateProgress, CONFIG.progressSteps[currentStep - 1].duration);
+            }
         }
-    }, 2000);
+    }
+    
+    // Iniciar progresso
+    updateProgress();
 }
 
 function performAnalysis(data) {
@@ -459,28 +536,63 @@ function performAnalysis(data) {
     .then(result => {
         console.log('✅ Análise concluída:', result);
         AppState.currentAnalysis = result;
-        showResults(result);
+        
+        // Finalizar progresso
+        finishProgress();
+        
+        // Mostrar resultados após um delay para completar a animação
+        setTimeout(() => {
+            showResults(result);
+        }, 1000);
     })
     .catch(error => {
         console.error('❌ Erro na análise:', error);
-        showAnalysisError(error);
+        finishProgress();
+        setTimeout(() => {
+            showAnalysisError(error);
+        }, 1000);
     })
     .finally(() => {
         AppState.isAnalyzing = false;
+        if (AppState.progressInterval) {
+            clearTimeout(AppState.progressInterval);
+        }
     });
 }
 
+function finishProgress() {
+    const progressBar = document.getElementById('progressBar');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressETA = document.getElementById('progressETA');
+    const loadingStatus = document.getElementById('loadingStatus');
+    
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressPercentage) progressPercentage.textContent = '100%';
+    if (progressETA) progressETA.textContent = 'Concluído!';
+    if (loadingStatus) loadingStatus.textContent = 'Análise concluída com sucesso!';
+}
+
 function showResults(result) {
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('resultsSection').style.display = 'block';
+    const loadingSection = document.getElementById('loadingSection');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    if (loadingSection) loadingSection.style.display = 'none';
+    if (resultsSection) {
+        resultsSection.style.display = 'block';
+        resultsSection.classList.add('fade-in');
+    }
     
     const resultsContainer = document.getElementById('analysisResults');
-    resultsContainer.innerHTML = formatAnalysisResults(result);
+    if (resultsContainer) {
+        resultsContainer.innerHTML = formatAnalysisResults(result);
+    }
     
     // Scroll para os resultados
-    document.getElementById('resultsSection').scrollIntoView({ 
-        behavior: 'smooth' 
-    });
+    if (resultsSection) {
+        resultsSection.scrollIntoView({ 
+            behavior: 'smooth' 
+        });
+    }
     
     showNotification('Análise ultra-detalhada concluída com sucesso!', 'success');
 }
@@ -491,56 +603,379 @@ function formatAnalysisResults(result) {
     // Informações sobre contextos utilizados
     if (result.search_context_used || result.websailor_used || result.attachments_used) {
         html += `
-            <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 10px; padding: 20px; margin-bottom: 30px;">
-                <h3 style="color: #0369a1; margin-bottom: 15px;">
-                    <i class="fas fa-info-circle"></i> Contextos Utilizados na Análise
-                </h3>
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    ${result.websailor_used ? '<div><i class="fas fa-ship" style="color: #10b981;"></i> WebSailor Navigation</div>' : ''}
-                    ${result.search_context_used ? '<div><i class="fas fa-search" style="color: #10b981;"></i> Busca Profunda</div>' : ''}
-                    ${result.attachments_used ? '<div><i class="fas fa-paperclip" style="color: #10b981;"></i> Análise de Anexos</div>' : ''}
+            <div class="result-card" style="background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(52, 168, 83, 0.1)); border-left: 4px solid var(--brand-primary);">
+                <h3><i class="fas fa-info-circle"></i> Contextos Utilizados na Análise</h3>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
+                    ${result.websailor_used ? '<div class="feature-item"><i class="fas fa-ship"></i> WebSailor Navigation</div>' : ''}
+                    ${result.search_context_used ? '<div class="feature-item"><i class="fas fa-search"></i> Busca Profunda</div>' : ''}
+                    ${result.attachments_used ? '<div class="feature-item"><i class="fas fa-paperclip"></i> Análise de Anexos</div>' : ''}
                 </div>
             </div>
         `;
     }
     
-    // Resultados principais
+    // Avatar Ultra-Detalhado
     if (result.avatar_ultra_detalhado) {
-        html += formatSection('Avatar Ultra-Detalhado', result.avatar_ultra_detalhado, 'fas fa-user-circle');
+        html += formatAvatarSection(result.avatar_ultra_detalhado);
     }
     
+    // Escopo e Posicionamento
     if (result.escopo) {
         html += formatSection('Escopo e Posicionamento', result.escopo, 'fas fa-bullseye');
     }
     
+    // Análise de Concorrência
     if (result.analise_concorrencia_detalhada) {
-        html += formatSection('Análise de Concorrência', result.analise_concorrencia_detalhada, 'fas fa-chess');
+        html += formatCompetitionSection(result.analise_concorrencia_detalhada);
     }
     
+    // Estratégia de Marketing
     if (result.estrategia_palavras_chave) {
-        html += formatSection('Estratégia de Marketing', result.estrategia_palavras_chave, 'fas fa-megaphone');
+        html += formatMarketingSection(result.estrategia_palavras_chave);
     }
     
+    // Métricas de Performance
     if (result.metricas_performance_detalhadas) {
-        html += formatSection('Métricas de Performance', result.metricas_performance_detalhadas, 'fas fa-chart-bar');
+        html += formatMetricsSection(result.metricas_performance_detalhadas);
     }
     
+    // Projeções e Cenários
     if (result.projecoes_cenarios) {
-        html += formatSection('Projeções e Cenários', result.projecoes_cenarios, 'fas fa-chart-line');
+        html += formatScenariosSection(result.projecoes_cenarios);
     }
     
+    // Inteligência de Mercado
     if (result.inteligencia_mercado) {
         html += formatSection('Inteligência de Mercado', result.inteligencia_mercado, 'fas fa-brain');
     }
     
+    // Plano de Ação
     if (result.plano_acao_detalhado) {
-        html += formatSection('Plano de Ação', result.plano_acao_detalhado, 'fas fa-tasks');
+        html += formatActionPlanSection(result.plano_acao_detalhado);
     }
     
+    // Insights Exclusivos
     if (result.insights_exclusivos) {
-        html += formatInsights(result.insights_exclusivos);
+        html += formatInsightsSection(result.insights_exclusivos);
     }
     
+    return html;
+}
+
+function formatAvatarSection(avatarData) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-user-circle"></i> Avatar Ultra-Detalhado</h3>
+    `;
+    
+    // Perfil Demográfico
+    if (avatarData.perfil_demografico) {
+        html += `<h4>📊 Perfil Demográfico</h4>`;
+        html += `<div class="metrics-grid">`;
+        
+        Object.entries(avatarData.perfil_demografico).forEach(([key, value]) => {
+            if (value && typeof value === 'string') {
+                html += `
+                    <div class="metric-item">
+                        <div class="metric-label">${formatKey(key)}</div>
+                        <div class="metric-value" style="font-size: 1rem; color: var(--text-primary);">${value}</div>
+                    </div>
+                `;
+            }
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Perfil Psicográfico
+    if (avatarData.perfil_psicografico) {
+        html += `<h4>🧠 Perfil Psicográfico</h4>`;
+        Object.entries(avatarData.perfil_psicografico).forEach(([key, value]) => {
+            if (value) {
+                html += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
+            }
+        });
+    }
+    
+    // Dores Específicas
+    if (avatarData.dores_especificas && Array.isArray(avatarData.dores_especificas)) {
+        html += `<h4>💔 Dores Específicas</h4>`;
+        html += `<ul>`;
+        avatarData.dores_especificas.forEach(dor => {
+            html += `<li style="margin-bottom: 8px; color: var(--text-secondary);">${dor}</li>`;
+        });
+        html += `</ul>`;
+    }
+    
+    // Desejos Profundos
+    if (avatarData.desejos_profundos && Array.isArray(avatarData.desejos_profundos)) {
+        html += `<h4>✨ Desejos Profundos</h4>`;
+        html += `<ul>`;
+        avatarData.desejos_profundos.forEach(desejo => {
+            html += `<li style="margin-bottom: 8px; color: var(--text-secondary);">${desejo}</li>`;
+        });
+        html += `</ul>`;
+    }
+    
+    // Gatilhos Mentais
+    if (avatarData.gatilhos_mentais && Array.isArray(avatarData.gatilhos_mentais)) {
+        html += `<h4>🎯 Gatilhos Mentais</h4>`;
+        html += `<ul>`;
+        avatarData.gatilhos_mentais.forEach(gatilho => {
+            html += `<li style="margin-bottom: 8px; color: var(--text-secondary);">${gatilho}</li>`;
+        });
+        html += `</ul>`;
+    }
+    
+    html += `</div>`;
+    return html;
+}
+
+function formatCompetitionSection(competitionData) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-chess"></i> Análise de Concorrência</h3>
+    `;
+    
+    // Concorrentes Diretos
+    if (competitionData.concorrentes_diretos && Array.isArray(competitionData.concorrentes_diretos)) {
+        html += `<h4>🎯 Concorrentes Diretos</h4>`;
+        competitionData.concorrentes_diretos.forEach((concorrente, index) => {
+            if (typeof concorrente === 'object') {
+                html += `
+                    <div style="background: var(--neo-bg); padding: 15px; border-radius: var(--neo-border-radius-small); margin-bottom: 15px; border-left: 4px solid var(--brand-accent);">
+                        <h5 style="color: var(--brand-accent); margin-bottom: 10px;">${concorrente.nome || `Concorrente ${index + 1}`}</h5>
+                        ${concorrente.preco_range ? `<p><strong>Preço:</strong> ${concorrente.preco_range}</p>` : ''}
+                        ${concorrente.posicionamento ? `<p><strong>Posicionamento:</strong> ${concorrente.posicionamento}</p>` : ''}
+                        ${concorrente.pontos_fortes ? `<p><strong>Pontos Fortes:</strong> ${concorrente.pontos_fortes}</p>` : ''}
+                        ${concorrente.pontos_fracos ? `<p><strong>Pontos Fracos:</strong> ${concorrente.pontos_fracos}</p>` : ''}
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    // Gaps de Mercado
+    if (competitionData.gaps_mercado && Array.isArray(competitionData.gaps_mercado)) {
+        html += `<h4>🔍 Oportunidades de Mercado</h4>`;
+        html += `<ul>`;
+        competitionData.gaps_mercado.forEach(gap => {
+            html += `<li style="margin-bottom: 8px; color: var(--brand-secondary);">${gap}</li>`;
+        });
+        html += `</ul>`;
+    }
+    
+    html += `</div>`;
+    return html;
+}
+
+function formatMarketingSection(marketingData) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-megaphone"></i> Estratégia de Marketing</h3>
+    `;
+    
+    // Palavras-chave Primárias
+    if (marketingData.palavras_chave_primarias && Array.isArray(marketingData.palavras_chave_primarias)) {
+        html += `<h4>🔑 Palavras-Chave Primárias</h4>`;
+        html += `<div style="overflow-x: auto;">`;
+        html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+        html += `<thead><tr style="background: var(--neo-bg);">`;
+        html += `<th style="padding: 10px; text-align: left; color: var(--text-primary);">Termo</th>`;
+        html += `<th style="padding: 10px; text-align: left; color: var(--text-primary);">Volume</th>`;
+        html += `<th style="padding: 10px; text-align: left; color: var(--text-primary);">Dificuldade</th>`;
+        html += `<th style="padding: 10px; text-align: left; color: var(--text-primary);">CPC</th>`;
+        html += `</tr></thead><tbody>`;
+        
+        marketingData.palavras_chave_primarias.forEach(palavra => {
+            if (typeof palavra === 'object') {
+                html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">`;
+                html += `<td style="padding: 10px; color: var(--text-secondary);">${palavra.termo || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; color: var(--text-secondary);">${palavra.volume_mensal || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; color: var(--text-secondary);">${palavra.dificuldade || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; color: var(--text-secondary);">${palavra.cpc_estimado || 'N/A'}</td>`;
+                html += `</tr>`;
+            }
+        });
+        
+        html += `</tbody></table></div>`;
+    }
+    
+    // Canais de Marketing
+    if (marketingData.canais_marketing) {
+        html += `<h4>📢 Canais de Marketing</h4>`;
+        Object.entries(marketingData.canais_marketing).forEach(([canal, dados]) => {
+            if (typeof dados === 'object') {
+                html += `
+                    <div style="background: var(--neo-bg); padding: 15px; border-radius: var(--neo-border-radius-small); margin-bottom: 15px;">
+                        <h5 style="color: var(--brand-primary); margin-bottom: 10px;">${formatKey(canal)}</h5>
+                        ${dados.estrategia ? `<p><strong>Estratégia:</strong> ${dados.estrategia}</p>` : ''}
+                        ${dados.orcamento_sugerido ? `<p><strong>Orçamento:</strong> ${dados.orcamento_sugerido}</p>` : ''}
+                        ${dados.cpc_medio ? `<p><strong>CPC Médio:</strong> ${dados.cpc_medio}</p>` : ''}
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    html += `</div>`;
+    return html;
+}
+
+function formatMetricsSection(metricsData) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-chart-bar"></i> Métricas de Performance</h3>
+    `;
+    
+    // KPIs Principais
+    if (metricsData.kpis_principais) {
+        html += `<h4>📊 KPIs Principais</h4>`;
+        html += `<div class="metrics-grid">`;
+        
+        Object.entries(metricsData.kpis_principais).forEach(([key, value]) => {
+            if (value && key !== 'resumo') {
+                html += `
+                    <div class="metric-item">
+                        <div class="metric-value">${value}</div>
+                        <div class="metric-label">${formatKey(key)}</div>
+                    </div>
+                `;
+            }
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Projeções de Vendas
+    if (metricsData.projecoes_vendas) {
+        html += `<h4>📈 Projeções de Vendas</h4>`;
+        html += `<div class="metrics-grid">`;
+        
+        Object.entries(metricsData.projecoes_vendas).forEach(([periodo, valor]) => {
+            html += `
+                <div class="metric-item">
+                    <div class="metric-value">${valor}</div>
+                    <div class="metric-label">${formatKey(periodo)}</div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+}
+
+function formatScenariosSection(scenariosData) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-chart-line"></i> Projeções e Cenários</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+    `;
+    
+    const scenarios = ['cenario_conservador', 'cenario_realista', 'cenario_otimista'];
+    const scenarioNames = ['Conservador', 'Realista', 'Otimista'];
+    const scenarioColors = ['#ea4335', '#4285f4', '#34a853'];
+    
+    scenarios.forEach((scenario, index) => {
+        if (scenariosData[scenario]) {
+            const data = scenariosData[scenario];
+            html += `
+                <div style="background: var(--neo-bg); padding: 20px; border-radius: var(--neo-border-radius-small); border-left: 4px solid ${scenarioColors[index]};">
+                    <h4 style="color: ${scenarioColors[index]}; margin-bottom: 15px;">${scenarioNames[index]}</h4>
+                    ${data.vendas_mensais ? `<p><strong>Vendas Mensais:</strong> ${data.vendas_mensais}</p>` : ''}
+                    ${data.receita_mensal ? `<p><strong>Receita Mensal:</strong> ${data.receita_mensal}</p>` : ''}
+                    ${data.receita_anual ? `<p><strong>Receita Anual:</strong> ${data.receita_anual}</p>` : ''}
+                    ${data.margem_lucro ? `<p><strong>Margem de Lucro:</strong> ${data.margem_lucro}</p>` : ''}
+                    
+                    ${data.premissas && Array.isArray(data.premissas) ? `
+                        <div style="margin-top: 15px;">
+                            <strong>Premissas:</strong>
+                            <ul style="margin-top: 5px;">
+                                ${data.premissas.map(premissa => `<li style="font-size: 0.9rem; color: var(--text-muted);">${premissa}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+    });
+    
+    html += `</div></div>`;
+    return html;
+}
+
+function formatActionPlanSection(actionPlan) {
+    let html = `
+        <div class="result-card">
+            <h3><i class="fas fa-tasks"></i> Plano de Ação Detalhado</h3>
+    `;
+    
+    const phases = ['fase_pre_lancamento', 'fase_lancamento', 'fase_pos_lancamento'];
+    const phaseNames = ['Pré-Lançamento', 'Lançamento', 'Pós-Lançamento'];
+    const phaseIcons = ['fas fa-cog', 'fas fa-rocket', 'fas fa-chart-line'];
+    
+    phases.forEach((phase, index) => {
+        if (actionPlan[phase]) {
+            const phaseData = actionPlan[phase];
+            html += `
+                <div style="background: var(--neo-bg); padding: 20px; border-radius: var(--neo-border-radius-small); margin-bottom: 20px; border-left: 4px solid var(--brand-primary);">
+                    <h4 style="color: var(--brand-primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="${phaseIcons[index]}"></i> ${phaseNames[index]}
+                    </h4>
+                    
+                    ${phaseData.duracao ? `<p><strong>Duração:</strong> ${phaseData.duracao}</p>` : ''}
+                    
+                    ${phaseData.acoes && Array.isArray(phaseData.acoes) ? `
+                        <div style="margin-top: 15px;">
+                            <strong>Ações:</strong>
+                            ${phaseData.acoes.map((acao, actionIndex) => {
+                                if (typeof acao === 'object') {
+                                    return `
+                                        <div style="background: var(--neo-bg-dark); padding: 15px; border-radius: var(--neo-border-radius-small); margin: 10px 0;">
+                                            <h6 style="color: var(--text-primary); margin-bottom: 8px;">${actionIndex + 1}. ${acao.acao || 'Ação não especificada'}</h6>
+                                            ${acao.responsavel ? `<p style="font-size: 0.9rem;"><strong>Responsável:</strong> ${acao.responsavel}</p>` : ''}
+                                            ${acao.prazo ? `<p style="font-size: 0.9rem;"><strong>Prazo:</strong> ${acao.prazo}</p>` : ''}
+                                            ${acao.recursos_necessarios ? `<p style="font-size: 0.9rem;"><strong>Recursos:</strong> ${acao.recursos_necessarios}</p>` : ''}
+                                            ${acao.resultado_esperado ? `<p style="font-size: 0.9rem;"><strong>Resultado:</strong> ${acao.resultado_esperado}</p>` : ''}
+                                        </div>
+                                    `;
+                                }
+                                return `<p style="margin: 5px 0;">• ${acao}</p>`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+    });
+    
+    html += `</div>`;
+    return html;
+}
+
+function formatInsightsSection(insights) {
+    if (!Array.isArray(insights)) return '';
+    
+    let html = `
+        <div class="insights-section">
+            <h3 style="color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-lightbulb" style="color: var(--brand-secondary);"></i> Insights Exclusivos
+            </h3>
+    `;
+    
+    insights.forEach((insight, index) => {
+        html += `
+            <div class="insight-item">
+                <div class="insight-number">${index + 1}</div>
+                <div class="insight-text">${insight}</div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
     return html;
 }
 
@@ -552,19 +987,32 @@ function formatSection(title, data, icon) {
     let content = '';
     
     for (const [key, value] of Object.entries(data)) {
-        if (value && typeof value === 'object') {
-            content += `<h4 style="color: #374151; margin: 20px 0 10px 0;">${formatKey(key)}</h4>`;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            content += `<h4 style="color: var(--brand-secondary); margin: 20px 0 10px 0;">${formatKey(key)}</h4>`;
             content += formatObject(value);
+        } else if (Array.isArray(value)) {
+            content += `<h4 style="color: var(--brand-secondary); margin: 20px 0 10px 0;">${formatKey(key)}</h4>`;
+            content += `<ul>`;
+            value.forEach(item => {
+                if (typeof item === 'object') {
+                    content += `<li style="margin-bottom: 10px;">`;
+                    Object.entries(item).forEach(([subKey, subValue]) => {
+                        content += `<strong>${formatKey(subKey)}:</strong> ${subValue}<br>`;
+                    });
+                    content += `</li>`;
+                } else {
+                    content += `<li style="margin-bottom: 5px; color: var(--text-secondary);">${item}</li>`;
+                }
+            });
+            content += `</ul>`;
         } else if (value) {
             content += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
         }
     }
     
     return `
-        <div style="background: white; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class="${icon}"></i> ${title}
-            </h3>
+        <div class="result-card">
+            <h3><i class="${icon}"></i> ${title}</h3>
             ${content}
         </div>
     `;
@@ -575,9 +1023,9 @@ function formatObject(obj, level = 0) {
     const indent = level * 20;
     
     for (const [key, value] of Object.entries(obj)) {
-        if (value && typeof value === 'object') {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
             html += `<div style="margin-left: ${indent}px; margin-bottom: 15px;">`;
-            html += `<h5 style="color: #4b5563; margin-bottom: 8px;">${formatKey(key)}</h5>`;
+            html += `<h5 style="color: var(--text-primary); margin-bottom: 8px;">${formatKey(key)}</h5>`;
             html += formatObject(value, level + 1);
             html += `</div>`;
         } else if (Array.isArray(value)) {
@@ -585,7 +1033,7 @@ function formatObject(obj, level = 0) {
             html += `<strong>${formatKey(key)}:</strong>`;
             html += `<ul style="margin: 8px 0 0 20px;">`;
             value.forEach(item => {
-                html += `<li>${item}</li>`;
+                html += `<li style="color: var(--text-secondary);">${item}</li>`;
             });
             html += `</ul></div>`;
         } else if (value) {
@@ -593,36 +1041,6 @@ function formatObject(obj, level = 0) {
         }
     }
     
-    return html;
-}
-
-function formatInsights(insights) {
-    if (!Array.isArray(insights)) return '';
-    
-    let html = `
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 30px; margin-bottom: 25px;">
-            <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-lightbulb"></i> Insights Exclusivos
-            </h3>
-            <div style="display: grid; gap: 15px;">
-    `;
-    
-    insights.forEach((insight, index) => {
-        html += `
-            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px;">
-                <div style="display: flex; align-items: flex-start; gap: 15px;">
-                    <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        ${index + 1}
-                    </div>
-                    <div style="flex: 1;">
-                        ${insight}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += `</div></div>`;
     return html;
 }
 
@@ -634,8 +1052,11 @@ function formatKey(key) {
 }
 
 function showAnalysisError(error) {
-    document.getElementById('loadingSection').style.display = 'none';
-    document.querySelector('.form-section').style.display = 'block';
+    const loadingSection = document.getElementById('loadingSection');
+    const formSection = document.querySelector('.form-section');
+    
+    if (loadingSection) loadingSection.style.display = 'none';
+    if (formSection) formSection.style.display = 'block';
     
     showNotification(`Erro na análise: ${error.message || 'Erro desconhecido'}`, 'error');
     
@@ -691,12 +1112,24 @@ function resetForm() {
     AppState.attachments = [];
     AppState.currentAnalysis = null;
     AppState.sessionId = generateSessionId();
+    AppState.isAnalyzing = false;
+    
+    if (AppState.progressInterval) {
+        clearTimeout(AppState.progressInterval);
+    }
     
     // Resetar interface
-    document.getElementById('resultsSection').style.display = 'none';
-    document.querySelector('.form-section').style.display = 'block';
-    document.getElementById('analysisForm').reset();
-    document.getElementById('attachmentList').innerHTML = '';
+    const resultsSection = document.getElementById('resultsSection');
+    const formSection = document.querySelector('.form-section');
+    const loadingSection = document.getElementById('loadingSection');
+    const form = document.getElementById('analysisForm');
+    const attachmentList = document.getElementById('attachmentList');
+    
+    if (resultsSection) resultsSection.style.display = 'none';
+    if (loadingSection) loadingSection.style.display = 'none';
+    if (formSection) formSection.style.display = 'block';
+    if (form) form.reset();
+    if (attachmentList) attachmentList.innerHTML = '';
     
     // Limpar erros
     document.querySelectorAll('.field-error').forEach(error => error.remove());
@@ -747,10 +1180,10 @@ function showNotification(message, type = 'info') {
     
     // Cores por tipo
     const colors = {
-        success: '#10b981',
-        error: '#ef4444',
+        success: '#34a853',
+        error: '#ea4335',
         warning: '#f59e0b',
-        info: '#3b82f6'
+        info: '#4285f4'
     };
     
     notification.style.background = colors[type] || colors.info;
@@ -783,6 +1216,8 @@ function getNotificationIcon(type) {
  */
 function initializeAutoSave() {
     const form = document.getElementById('analysisForm');
+    if (!form) return;
+    
     const inputs = form.querySelectorAll('input, textarea, select');
     
     inputs.forEach(input => {
@@ -795,6 +1230,8 @@ function initializeAutoSave() {
 
 function saveFormData() {
     const form = document.getElementById('analysisForm');
+    if (!form) return;
+    
     const formData = new FormData(form);
     const data = {};
     
@@ -891,13 +1328,23 @@ style.textContent = `
     
     .progress-step {
         padding: 8px 0;
-        color: #6b7280;
+        color: var(--text-muted);
         font-size: 0.9rem;
+        transition: var(--neo-transition);
     }
     
-    .progress-step:last-child {
-        color: #10b981;
+    .progress-step.completed {
+        color: var(--brand-secondary);
         font-weight: 500;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 `;
 document.head.appendChild(style);
@@ -906,4 +1353,3 @@ document.head.appendChild(style);
 window.generatePDF = generatePDF;
 window.resetForm = resetForm;
 window.removeAttachment = removeAttachment;
-

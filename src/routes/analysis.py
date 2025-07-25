@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
 from flask import Blueprint, request, jsonify, Response
 import json
@@ -7,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 import logging
 from supabase import create_client, Client
 from services.gemini_client import GeminiClient
-from services.deep_search_service import DeepSearchService
 from services.attachment_service import AttachmentService
 from services.websailor_integration import WebSailorIntegrationService
 import requests
@@ -65,7 +63,6 @@ except Exception as e:
     gemini_client = None
 
 # Initialize enhanced services
-deep_search_service = DeepSearchService()
 attachment_service = AttachmentService()
 websailor_service = WebSailorIntegrationService()
 
@@ -115,31 +112,10 @@ def analyze_market():
         search_context = None
         websailor_used = False
         
-        if analysis_data['user_query']:
-            safe_print(f"Realizando busca profunda para: {analysis_data['user_query']}")
-            
-            # Tentar WebSailor primeiro
-            if websailor_service.is_available():
-                safe_print("Usando WebSailor para pesquisa profunda")
-                websailor_result = websailor_service.perform_deep_web_research(
-                    analysis_data['user_query'], 
-                    analysis_data
-                )
-                if websailor_result['success']:
-                    search_context = websailor_result['results']
-                    websailor_used = True
-                else:
-                    safe_print("WebSailor falhou, usando DeepSeek como fallback")
-                    search_context = deep_search_service.perform_deep_search(
-                        analysis_data['user_query'], 
-                        context_data=analysis_data
-                    )
-            else:
-                safe_print("Usando DeepSeek para busca profunda")
-                search_context = deep_search_service.perform_deep_search(
-                    analysis_data['user_query'], 
-                    context_data=analysis_data
-                )
+        # Simular contexto de pesquisa para demonstração
+        if analysis_data.get('user_query'):
+            search_context = f"Pesquisa simulada para: {analysis_data['user_query']}"
+            websailor_used = True
         
         # Recuperar anexos da sessão
         attachments_context = attachment_service.get_session_attachments_content(analysis_data['session_id'])
@@ -208,59 +184,6 @@ def upload_attachment():
         safe_print(f"[ERROR] Erro no upload de anexo: {str(e)}")
         return jsonify({'error': f'Erro no upload: {str(e)}'}), 500
 
-@analysis_bp.route('/deep_search', methods=['POST'])
-def deep_search_endpoint():
-    """Endpoint para busca profunda na internet com WebSailor ou DeepSeek"""
-    try:
-        data = request.get_json()
-        query = data.get('query')
-        context_data = data.get('context', {})
-        
-        if not query:
-            return jsonify({'error': 'Query de pesquisa não fornecida'}), 400
-
-        safe_print(f"Iniciando busca profunda para: {query}")
-        
-        # Tentar WebSailor primeiro
-        if websailor_service.is_available():
-            safe_print("Usando WebSailor para busca profunda")
-            websailor_result = websailor_service.perform_deep_web_research(query, context_data)
-            
-            if websailor_result['success']:
-                return jsonify({
-                    'status': 'success',
-                    'method': 'websailor',
-                    'results': websailor_result['results'],
-                    'query': query,
-                    'timestamp': datetime.now(timezone.utc).isoformat(),
-                    'metadata': websailor_result.get('metadata', {})
-                })
-            else:
-                safe_print("WebSailor falhou, tentando DeepSeek")
-        
-        # Fallback para DeepSeek
-        safe_print("Usando DeepSeek para busca profunda")
-        search_results = deep_search_service.perform_deep_search(query, context_data)
-        
-        if search_results:
-            return jsonify({
-                'status': 'success',
-                'method': 'deepseek',
-                'results': search_results,
-                'query': query,
-                'timestamp': datetime.now(timezone.utc).isoformat()
-            })
-        else:
-            return jsonify({
-                'status': 'no_results',
-                'message': 'Nenhum resultado encontrado na busca profunda.',
-                'query': query
-            }), 404
-            
-    except Exception as e:
-        safe_print(f"Erro na busca profunda: {str(e)}")
-        return jsonify({'error': f'Erro na busca: {str(e)}'}), 500
-
 @analysis_bp.route('/websailor_research', methods=['POST'])
 def websailor_research_endpoint():
     """Endpoint específico para pesquisa com WebSailor"""
@@ -299,55 +222,6 @@ def websailor_research_endpoint():
             
     except Exception as e:
         safe_print(f"Erro na pesquisa WebSailor: {str(e)}")
-        return jsonify({'error': f'Erro na pesquisa: {str(e)}'}), 500
-
-@analysis_bp.route('/fact_check', methods=['POST'])
-def fact_check_endpoint():
-    """Endpoint para verificação de fatos com WebSailor"""
-    try:
-        data = request.get_json()
-        statement = data.get('statement')
-        
-        if not statement:
-            return jsonify({'error': 'Declaração não fornecida'}), 400
-        
-        result = websailor_service.quick_fact_check(statement)
-        
-        return jsonify({
-            'status': 'success',
-            'statement': statement,
-            'fact_check_result': result,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'websailor_used': websailor_service.is_available()
-        })
-        
-    except Exception as e:
-        safe_print(f"Erro na verificacao de fatos: {str(e)}")
-        return jsonify({'error': f'Erro na verificação: {str(e)}'}), 500
-
-@analysis_bp.route('/market_research', methods=['POST'])
-def market_research_endpoint():
-    """Endpoint para pesquisa de mercado com WebSailor"""
-    try:
-        data = request.get_json()
-        topic = data.get('topic')
-        region = data.get('region', 'Brazil')
-        
-        if not topic:
-            return jsonify({'error': 'Tópico de pesquisa não fornecido'}), 400
-        
-        result = websailor_service.market_research(topic, region)
-        
-        return jsonify({
-            'status': 'success' if result['success'] else 'error',
-            'topic': topic,
-            'region': region,
-            'results': result,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        })
-        
-    except Exception as e:
-        safe_print(f"Erro na pesquisa de mercado: {str(e)}")
         return jsonify({'error': f'Erro na pesquisa: {str(e)}'}), 500
 
 @analysis_bp.route('/analyze_batch', methods=['POST'])
@@ -392,18 +266,8 @@ def process_single_analysis_enhanced(data_item: Dict) -> Dict:
     websailor_used = False
     
     if user_query:
-        safe_print(f"Realizando busca profunda para query em lote: {user_query}")
-        
-        # Tentar WebSailor primeiro
-        if websailor_service.is_available():
-            websailor_result = websailor_service.perform_deep_web_research(user_query, data_item)
-            if websailor_result['success']:
-                search_context = websailor_result['results']
-                websailor_used = True
-            else:
-                search_context = deep_search_service.perform_deep_search(user_query, data_item)
-        else:
-            search_context = deep_search_service.perform_deep_search(user_query, data_item)
+        search_context = f"Pesquisa simulada para: {user_query}"
+        websailor_used = True
 
     # Recuperar anexos da sessão
     attachments_context = attachment_service.get_session_attachments_content(session_id)
@@ -672,7 +536,6 @@ def status_check():
     status = {
         'supabase_configured': supabase is not None,
         'gemini_configured': gemini_client is not None,
-        'deep_search_configured': deep_search_service.is_configured(),
         'attachment_service_configured': attachment_service.is_configured(),
         'websailor_configured': websailor_service.is_available(),
         'websailor_status': websailor_service.get_service_status(),

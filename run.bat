@@ -95,4 +95,3 @@ echo Servidor parado
 echo ========================================
 echo.
 pause
-

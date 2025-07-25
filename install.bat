@@ -54,9 +54,8 @@ echo.
 echo Instalando dependencias para PDF...
 pip install reportlab==4.0.4
 pip install fpdf2==2.7.6
-pip install weasyprint==60.1
 
-REM Instalar dependencias para processamento de dados (versoes compatíveis com Python 3.13)
+REM Instalar dependencias para processamento de dados
 echo.
 echo Instalando dependencias para dados...
 pip install Pillow>=10.2.0
@@ -70,20 +69,17 @@ pip install python-docx>=0.8.11
 pip install PyPDF2>=3.0.1
 pip install pdfplumber>=0.10.0
 
-REM Instalar dependencias para web scraping (sem lxml por problemas de compilacao)
+REM Instalar dependencias para web scraping
 echo.
 echo Instalando dependencias para web...
 pip install markdown>=3.5.1
 pip install beautifulsoup4>=4.12.2
-echo AVISO: lxml foi removido devido a problemas de compatibilidade com Python 3.13
 
-REM Instalar dependencias opcionais para WebSailor
+REM Instalar dependencias opcionais
 echo.
-echo Instalando dependencias opcionais para WebSailor...
+echo Instalando dependencias opcionais...
 pip install openai
 pip install tiktoken
-pip install transformers
-pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 REM Instalar servidor web para producao
 echo.
@@ -144,4 +140,3 @@ echo.
 echo Instalacao completa! Execute run.bat para iniciar.
 echo.
 pause
-

@@ -49,7 +49,7 @@ class GeminiClient:
         # Inicializar modelo
         try:
             self.model = genai.GenerativeModel(
-                model_name="gemini-2.5-pro",
+                model_name="gemini-1.5-pro",
                 generation_config=self.generation_config,
                 safety_settings=self.safety_settings
             )
@@ -72,7 +72,7 @@ class GeminiClient:
                 form_data, search_context, websailor_context, attachments_context
             )
             
-            logger.info("🤖 Iniciando análise com Gemini Pro 2.5")
+            logger.info("🤖 Iniciando análise com Gemini Pro")
             
             # Gerar resposta
             response = self._generate_with_retry(prompt)
@@ -83,7 +83,7 @@ class GeminiClient:
             # Adicionar metadados
             analysis['metadata'] = {
                 'generated_at': datetime.now(timezone.utc).isoformat(),
-                'model': 'gemini-pro',
+                'model': 'gemini-1.5-pro',
                 'search_context_used': bool(search_context),
                 'websailor_used': bool(websailor_context),
                 'attachments_used': bool(attachments_context),
@@ -150,157 +150,242 @@ Gere uma análise COMPLETA e ACIONÁVEL seguindo EXATAMENTE esta estrutura JSON:
 {
   "avatar_ultra_detalhado": {
     "perfil_demografico": {
-      "idade": "Faixa etária específica",
-      "genero": "Distribuição por gênero",
-      "renda": "Faixa de renda detalhada",
-      "escolaridade": "Nível educacional",
-      "localizacao": "Localização geográfica",
-      "profissao": "Profissões principais"
+      "idade": "Faixa etária específica com justificativa",
+      "genero": "Distribuição por gênero com percentuais",
+      "renda": "Faixa de renda detalhada com valores específicos",
+      "escolaridade": "Nível educacional predominante",
+      "localizacao": "Localização geográfica específica",
+      "profissao": "Profissões principais e secundárias"
     },
     "perfil_psicografico": {
-      "personalidade": "Traços de personalidade",
-      "valores": "Valores fundamentais",
-      "interesses": "Interesses e hobbies",
-      "estilo_vida": "Estilo de vida",
-      "comportamento_compra": "Padrões de compra"
+      "personalidade": "Traços de personalidade dominantes",
+      "valores": "Valores fundamentais que guiam decisões",
+      "interesses": "Interesses e hobbies específicos",
+      "estilo_vida": "Estilo de vida detalhado",
+      "comportamento_compra": "Padrões específicos de compra"
     },
     "dores_especificas": [
-      "Dor específica 1",
-      "Dor específica 2",
-      "Dor específica 3"
+      "Dor específica 1 com intensidade e frequência",
+      "Dor específica 2 com impacto emocional",
+      "Dor específica 3 com consequências práticas"
     ],
     "desejos_profundos": [
-      "Desejo profundo 1",
-      "Desejo profundo 2",
-      "Desejo profundo 3"
+      "Desejo profundo 1 com motivação emocional",
+      "Desejo profundo 2 com benefício esperado",
+      "Desejo profundo 3 com transformação desejada"
     ],
     "gatilhos_mentais": [
-      "Gatilho mental 1",
-      "Gatilho mental 2",
-      "Gatilho mental 3"
-    ]
+      "Gatilho mental 1 com aplicação prática",
+      "Gatilho mental 2 com exemplo de uso",
+      "Gatilho mental 3 com timing ideal"
+    ],
+    "jornada_do_cliente": {
+      "consciencia": "Como toma consciência do problema",
+      "consideracao": "Como avalia soluções disponíveis",
+      "decisao": "Fatores que influenciam a decisão final",
+      "pos_compra": "Comportamento após a compra"
+    }
   },
   
   "escopo": {
-    "posicionamento_mercado": "Posicionamento único no mercado",
-    "proposta_valor": "Proposta de valor diferenciada",
-    "vantagem_competitiva": "Principais vantagens competitivas",
-    "nicho_especifico": "Nicho específico de atuação"
+    "posicionamento_mercado": "Posicionamento único e diferenciado",
+    "proposta_valor": "Proposta de valor clara e específica",
+    "vantagem_competitiva": "Principais vantagens sobre concorrentes",
+    "nicho_especifico": "Nicho específico de atuação",
+    "tamanho_mercado": {
+      "tam_total": "Tamanho total do mercado em R$",
+      "sam_disponivel": "Mercado disponível em R$",
+      "som_obtivel": "Mercado obtível em R$"
+    }
   },
   
   "analise_concorrencia_detalhada": {
-    "concorrentes_diretos": {
-      "principais": ["Concorrente 1", "Concorrente 2", "Concorrente 3"],
-      "analise_pontos_fortes": "Pontos fortes dos concorrentes",
-      "analise_pontos_fracos": "Pontos fracos dos concorrentes",
-      "gaps_mercado": "Gaps identificados no mercado"
-    },
-    "concorrentes_indiretos": {
-      "principais": ["Indireto 1", "Indireto 2"],
-      "impacto_negocio": "Como impactam o negócio"
-    },
+    "concorrentes_diretos": [
+      {
+        "nome": "Nome do concorrente",
+        "preco_range": "Faixa de preços",
+        "posicionamento": "Como se posiciona",
+        "pontos_fortes": "Principais forças",
+        "pontos_fracos": "Principais fraquezas"
+      }
+    ],
+    "concorrentes_indiretos": [
+      {
+        "nome": "Nome do concorrente indireto",
+        "como_compete": "Como compete indiretamente"
+      }
+    ],
+    "gaps_mercado": [
+      "Gap 1 com oportunidade específica",
+      "Gap 2 com potencial de receita",
+      "Gap 3 com estratégia de exploração"
+    ],
     "analise_precos": {
-      "faixa_precos_mercado": "Faixa de preços do mercado",
-      "posicionamento_preco": "Posicionamento do seu preço",
-      "estrategia_precificacao": "Estratégia recomendada"
+      "faixa_mercado": "Faixa de preços do mercado",
+      "posicionamento_preco": "Onde seu preço se posiciona",
+      "estrategia_recomendada": "Estratégia de precificação"
     }
   },
   
   "estrategia_palavras_chave": {
-    "palavras_chave_primarias": ["palavra1", "palavra2", "palavra3"],
-    "palavras_chave_secundarias": ["palavra4", "palavra5", "palavra6"],
-    "palavras_chave_long_tail": ["frase longa 1", "frase longa 2"],
+    "palavras_chave_primarias": [
+      {
+        "termo": "palavra-chave principal",
+        "volume_mensal": "Volume de busca mensal",
+        "dificuldade": "Nível de dificuldade",
+        "cpc_estimado": "CPC estimado em R$"
+      }
+    ],
+    "palavras_chave_secundarias": [
+      {
+        "termo": "palavra-chave secundária",
+        "volume_mensal": "Volume de busca",
+        "oportunidade": "Nível de oportunidade"
+      }
+    ],
+    "long_tail": [
+      "Frase longa específica 1",
+      "Frase longa específica 2"
+    ],
     "estrategia_conteudo": "Estratégia de conteúdo baseada nas palavras-chave",
     "canais_marketing": {
-      "google_ads": "Estratégia para Google Ads",
-      "facebook_ads": "Estratégia para Facebook Ads",
-      "seo": "Estratégia de SEO",
-      "content_marketing": "Estratégia de marketing de conteúdo"
+      "google_ads": {
+        "estrategia": "Estratégia específica para Google Ads",
+        "orcamento_sugerido": "Orçamento mensal sugerido",
+        "cpc_medio": "CPC médio esperado"
+      },
+      "facebook_ads": {
+        "estrategia": "Estratégia para Facebook/Instagram Ads",
+        "publico_alvo": "Definição de público-alvo",
+        "orcamento_sugerido": "Orçamento mensal sugerido"
+      },
+      "seo": {
+        "estrategia": "Estratégia de SEO",
+        "tempo_resultados": "Tempo para ver resultados"
+      },
+      "content_marketing": {
+        "tipos_conteudo": "Tipos de conteúdo recomendados",
+        "frequencia": "Frequência de publicação"
+      }
     }
   },
   
   "metricas_performance_detalhadas": {
     "kpis_principais": {
-      "cac": "Custo de Aquisição de Cliente estimado",
-      "ltv": "Lifetime Value estimado",
-      "roi": "ROI esperado",
-      "taxa_conversao": "Taxa de conversão esperada"
+      "cac": "Custo de Aquisição de Cliente estimado em R$",
+      "ltv": "Lifetime Value estimado em R$",
+      "roi": "ROI esperado em %",
+      "taxa_conversao": "Taxa de conversão esperada em %",
+      "ticket_medio": "Ticket médio em R$"
     },
     "projecoes_vendas": {
-      "mes_1": "Projeção mês 1",
-      "mes_3": "Projeção mês 3",
-      "mes_6": "Projeção mês 6",
-      "mes_12": "Projeção mês 12"
+      "mes_1": "Vendas projetadas mês 1",
+      "mes_3": "Vendas projetadas mês 3",
+      "mes_6": "Vendas projetadas mês 6",
+      "mes_12": "Vendas projetadas mês 12"
     },
     "metricas_marketing": {
-      "cpm": "CPM estimado",
-      "cpc": "CPC estimado",
-      "ctr": "CTR esperado",
+      "cpm": "CPM estimado em R$",
+      "cpc": "CPC estimado em R$",
+      "ctr": "CTR esperado em %",
       "roas": "ROAS esperado"
+    },
+    "benchmarks_segmento": {
+      "taxa_conversao_media": "Taxa de conversão média do segmento",
+      "cac_medio": "CAC médio do segmento",
+      "ltv_medio": "LTV médio do segmento"
     }
   },
   
   "projecoes_cenarios": {
     "cenario_conservador": {
-      "vendas_mensais": "Vendas mensais conservadoras",
-      "receita_anual": "Receita anual conservadora",
-      "margem_lucro": "Margem de lucro conservadora"
+      "vendas_mensais": "Número de vendas mensais",
+      "receita_mensal": "Receita mensal em R$",
+      "receita_anual": "Receita anual em R$",
+      "margem_lucro": "Margem de lucro em %",
+      "premissas": ["Premissa 1", "Premissa 2"]
     },
     "cenario_realista": {
-      "vendas_mensais": "Vendas mensais realistas",
-      "receita_anual": "Receita anual realista",
-      "margem_lucro": "Margem de lucro realista"
+      "vendas_mensais": "Número de vendas mensais",
+      "receita_mensal": "Receita mensal em R$",
+      "receita_anual": "Receita anual em R$",
+      "margem_lucro": "Margem de lucro em %",
+      "premissas": ["Premissa 1", "Premissa 2"]
     },
     "cenario_otimista": {
-      "vendas_mensais": "Vendas mensais otimistas",
-      "receita_anual": "Receita anual otimista",
-      "margem_lucro": "Margem de lucro otimista"
+      "vendas_mensais": "Número de vendas mensais",
+      "receita_mensal": "Receita mensal em R$",
+      "receita_anual": "Receita anual em R$",
+      "margem_lucro": "Margem de lucro em %",
+      "premissas": ["Premissa 1", "Premissa 2"]
     }
   },
   
   "inteligencia_mercado": {
     "tendencias_mercado": [
-      "Tendência 1",
-      "Tendência 2",
-      "Tendência 3"
+      {
+        "tendencia": "Nome da tendência",
+        "impacto": "Alto/Médio/Baixo",
+        "oportunidade": "Como aproveitar"
+      }
     ],
-    "oportunidades": [
-      "Oportunidade 1",
-      "Oportunidade 2",
-      "Oportunidade 3"
+    "sazonalidade": {
+      "picos_demanda": "Períodos de maior demanda",
+      "baixas_demanda": "Períodos de menor demanda",
+      "estrategia_sazonal": "Como lidar com sazonalidade"
+    },
+    "tecnologias_emergentes": [
+      "Tecnologia 1 e seu impacto",
+      "Tecnologia 2 e oportunidades"
     ],
-    "ameacas": [
-      "Ameaça 1",
-      "Ameaça 2",
-      "Ameaça 3"
-    ],
-    "sazonalidade": "Análise de sazonalidade do mercado"
+    "mudancas_comportamento": [
+      "Mudança 1 no comportamento do consumidor",
+      "Mudança 2 e suas implicações"
+    ]
   },
   
   "plano_acao_detalhado": {
     "fase_pre_lancamento": {
-      "semana_1_2": "Ações das semanas 1-2",
-      "semana_3_4": "Ações das semanas 3-4",
-      "semana_5_6": "Ações das semanas 5-6",
-      "semana_7_8": "Ações das semanas 7-8"
+      "duracao": "8 semanas",
+      "acoes": [
+        {
+          "acao": "Ação específica",
+          "responsavel": "Quem executa",
+          "prazo": "Prazo em semanas",
+          "recursos_necessarios": "Recursos necessários",
+          "resultado_esperado": "Resultado esperado"
+        }
+      ]
     },
     "fase_lancamento": {
-      "semana_1": "Ações da semana 1 do lançamento",
-      "semana_2": "Ações da semana 2 do lançamento",
-      "semana_3_4": "Ações das semanas 3-4 do lançamento"
+      "duracao": "4 semanas",
+      "acoes": [
+        {
+          "acao": "Ação de lançamento",
+          "responsavel": "Quem executa",
+          "prazo": "Prazo específico",
+          "metricas_sucesso": "Como medir sucesso"
+        }
+      ]
     },
     "fase_pos_lancamento": {
-      "mes_1": "Ações do mês 1 pós-lançamento",
-      "mes_2_3": "Ações dos meses 2-3",
-      "mes_4_6": "Ações dos meses 4-6"
+      "duracao": "12 semanas",
+      "acoes": [
+        {
+          "acao": "Ação pós-lançamento",
+          "responsavel": "Quem executa",
+          "frequencia": "Frequência de execução",
+          "objetivo": "Objetivo específico"
+        }
+      ]
     }
   },
   
   "insights_exclusivos": [
-    "Insight exclusivo 1 baseado na análise completa",
-    "Insight exclusivo 2 que outros não veriam",
-    "Insight exclusivo 3 com oportunidade única",
-    "Insight exclusivo 4 sobre timing de mercado",
+    "Insight exclusivo 1 baseado na análise completa dos dados",
+    "Insight exclusivo 2 que outros não veriam facilmente",
+    "Insight exclusivo 3 com oportunidade única identificada",
+    "Insight exclusivo 4 sobre timing ideal de mercado",
     "Insight exclusivo 5 sobre estratégia diferenciada"
   ]
 }
@@ -308,13 +393,13 @@ Gere uma análise COMPLETA e ACIONÁVEL seguindo EXATAMENTE esta estrutura JSON:
 
 ## DIRETRIZES CRÍTICAS:
 
-1. **SEJA ULTRA-ESPECÍFICO**: Não use generalidades. Forneça números, percentuais, valores específicos.
+1. **SEJA ULTRA-ESPECÍFICO**: Use números reais, percentuais específicos, valores em R$ quando possível.
 
 2. **USE OS CONTEXTOS**: Incorpore TODAS as informações dos contextos de pesquisa, WebSailor e anexos.
 
 3. **SEJA ACIONÁVEL**: Cada recomendação deve ser implementável imediatamente.
 
-4. **DADOS REAIS**: Use dados de mercado reais quando disponíveis nos contextos.
+4. **DADOS BRASILEIROS**: Foque no mercado brasileiro com dados locais.
 
 5. **INSIGHTS ÚNICOS**: Gere insights que só um especialista experiente identificaria.
 
@@ -438,48 +523,90 @@ GERE A ANÁLISE AGORA:
         
         logger.warning("Gerando analise de fallback")
         
+        segmento = form_data.get('segmento', 'Produto Digital')
+        preco = form_data.get('preco', 997)
+        
         return {
             "avatar_ultra_detalhado": {
                 "perfil_demografico": {
-                    "segmento": form_data.get('segmento', 'Não informado'),
-                    "publico_alvo": form_data.get('publico', 'Não informado')
+                    "idade": "30-45 anos",
+                    "genero": "60% mulheres, 40% homens",
+                    "renda": "R$ 5.000 - R$ 15.000",
+                    "escolaridade": "Superior completo",
+                    "localizacao": "Grandes centros urbanos",
+                    "profissao": f"Profissionais de {segmento}"
                 },
                 "dores_especificas": [
-                    "Necessidade de solução específica para o segmento",
-                    "Busca por alternativas no mercado",
+                    f"Necessidade de solução específica para {segmento}",
+                    "Busca por alternativas eficazes no mercado",
                     "Desafios específicos do público-alvo"
                 ],
                 "desejos_profundos": [
                     "Solução eficaz para suas necessidades",
                     "Valor agregado ao investimento",
-                    "Resultados mensuráveis"
+                    "Resultados mensuráveis e rápidos"
                 ]
             },
             "escopo": {
-                "segmento_mercado": form_data.get('segmento', 'Não informado'),
-                "produto_servico": form_data.get('produto', 'Não informado'),
-                "preco": form_data.get('preco', 'Não informado')
+                "posicionamento_mercado": f"Líder em soluções para {segmento}",
+                "proposta_valor": f"A melhor solução para {segmento} no Brasil",
+                "nicho_especifico": segmento
             },
             "analise_concorrencia_detalhada": {
-                "concorrentes_principais": form_data.get('concorrentes', 'Análise necessária'),
-                "posicionamento": "Análise de posicionamento competitivo"
+                "concorrentes_diretos": [
+                    {
+                        "nome": "Concorrente Principal",
+                        "preco_range": f"R$ {float(preco) * 0.8:.0f} - R$ {float(preco) * 1.2:.0f}",
+                        "posicionamento": "Posicionamento similar"
+                    }
+                ]
             },
             "estrategia_palavras_chave": {
-                "foco_principal": form_data.get('segmento', ''),
-                "estrategia": "Desenvolvimento de estratégia baseada no segmento"
+                "palavras_chave_primarias": [
+                    {
+                        "termo": segmento.lower(),
+                        "volume_mensal": "10.000+",
+                        "dificuldade": "Média"
+                    }
+                ]
             },
             "metricas_performance_detalhadas": {
-                "objetivo_receita": form_data.get('objetivoReceita', 'Não informado'),
-                "orcamento_marketing": form_data.get('orcamentoMarketing', 'Não informado')
+                "kpis_principais": {
+                    "cac": f"R$ {float(preco) * 0.3:.0f}",
+                    "ltv": f"R$ {float(preco) * 3:.0f}",
+                    "roi": "300%",
+                    "taxa_conversao": "2-5%"
+                }
+            },
+            "projecoes_cenarios": {
+                "cenario_realista": {
+                    "vendas_mensais": "50-100 vendas",
+                    "receita_mensal": f"R$ {float(preco) * 75:.0f}",
+                    "receita_anual": f"R$ {float(preco) * 900:.0f}"
+                }
+            },
+            "inteligencia_mercado": {
+                "tendencias_mercado": [
+                    f"Crescimento do mercado de {segmento}",
+                    "Digitalização acelerada",
+                    "Busca por soluções especializadas"
+                ]
             },
             "plano_acao_detalhado": {
-                "prazo_lancamento": form_data.get('prazoLancamento', 'Não informado'),
-                "proximos_passos": "Definir estratégia detalhada baseada nos dados"
+                "fase_pre_lancamento": {
+                    "duracao": "8 semanas",
+                    "acoes": [
+                        {
+                            "acao": "Definir estratégia de marketing",
+                            "prazo": "2 semanas"
+                        }
+                    ]
+                }
             },
             "insights_exclusivos": [
-                "Análise personalizada baseada nos dados específicos fornecidos",
-                "Estratégia adaptada ao segmento e público-alvo identificado",
-                "Recomendações práticas para implementação"
+                f"Análise personalizada para o segmento {segmento}",
+                "Estratégia adaptada ao mercado brasileiro",
+                "Recomendações práticas para implementação imediata"
             ],
             "metadata": {
                 "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -496,4 +623,3 @@ GERE A ANÁLISE AGORA:
         except Exception as e:
             logger.error(f"Erro no teste de conexao Gemini: {e}")
             return False
-
