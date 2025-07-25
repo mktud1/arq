@@ -1,0 +1,36 @@
+2025-07-24 01:02:21,594 - __main__ - INFO - Configure-as para funcionalidades avançadas
+2025-07-24 01:02:23,278 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.5:5000
+2025-07-24 01:02:23,278 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-24 01:02:23,280 - werkzeug - INFO -  * Restarting with stat
+2025-07-24 01:02:23,550 - __main__ - INFO - Configure-as para funcionalidades avançadas
+2025-07-24 01:02:25,154 - werkzeug - WARNING -  * Debugger is active!
+2025-07-24 01:02:25,159 - werkzeug - INFO -  * Debugger PIN: 118-172-262
+2025-07-24 01:02:25,175 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:25] "GET / HTTP/1.1" 200 -
+2025-07-24 01:02:25,187 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:25] "[33mGET /static/css/enhanced-styles.css HTTP/1.1[0m" 404 -
+2025-07-24 01:02:25,263 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:25] "GET /static/js/enhanced-analysis.js HTTP/1.1" 200 -
+2025-07-24 01:02:25,626 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:25] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:02:25,891 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:25] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:02:31,619 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:31] "GET / HTTP/1.1" 200 -
+2025-07-24 01:02:31,940 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:31] "[33mGET /static/css/enhanced-styles.css HTTP/1.1[0m" 404 -
+2025-07-24 01:02:31,942 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:31] "GET /static/js/enhanced-analysis.js HTTP/1.1" 200 -
+2025-07-24 01:02:32,318 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:32] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:02:32,331 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:32] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:02:32,370 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:02:32] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-07-24 01:26:19,223 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.5:5000
+2025-07-24 01:26:19,223 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-24 01:26:19,225 - werkzeug - INFO -  * Restarting with stat
+2025-07-24 01:26:21,113 - werkzeug - WARNING -  * Debugger is active!
+2025-07-24 01:26:21,117 - werkzeug - INFO -  * Debugger PIN: 118-172-262
+2025-07-24 01:26:21,132 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:26:21] "GET / HTTP/1.1" 200 -
+2025-07-24 01:26:21,148 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:26:21] "[33mGET /static/css/enhanced-styles.css HTTP/1.1[0m" 404 -
+2025-07-24 01:26:21,217 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:26:21] "[36mGET /static/js/enhanced-analysis.js HTTP/1.1[0m" 304 -
+2025-07-24 01:26:21,586 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:26:21] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:26:21,823 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:26:21] "GET /api/app_status HTTP/1.1" 200 -
+2025-07-24 01:27:47,987 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:27:47] "[33mGET /static/css/enhanced-styles.css HTTP/1.1[0m" 404 -
+2025-07-24 01:27:47,996 - werkzeug - INFO - 127.0.0.1 - - [24/Jul/2025 01:27:47] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
