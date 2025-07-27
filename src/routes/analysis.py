@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Tuple
 import concurrent.futures
 from functools import lru_cache
 import uuid
-
+import os
 # Configurar encoding UTF-8 no Windows
 if sys.platform.startswith('win'):
     try:
