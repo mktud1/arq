@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARQV30 Enhanced - Análise Ultra-Detalhada de Mercado</title>
+    <title>ARQV30 Enhanced v2.0 - Análise Ultra-Detalhada de Mercado com IA</title>
+    
+    <!-- Meta Tags SEO -->
+    <meta name="description" content="Análise ultra-detalhada de mercado com Gemini Pro 1.5, WebSailor e busca profunda na internet. Descubra insights exclusivos sobre seu cliente ideal com IA avançada.">
+    <meta name="keywords" content="análise de mercado, avatar cliente, gemini pro, inteligência artificial, marketing digital, análise competitiva">
+    <meta name="author" content="ARQV30 Enhanced">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="ARQV30 Enhanced v2.0 - Análise Ultra-Detalhada de Mercado">
+    <meta property="og:description" content="Análise ultra-detalhada com IA avançada, WebSailor e busca profunda na internet">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,27 +28,42 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-styles.css') }}">
     
-    <meta name="description" content="Análise ultra-detalhada de mercado com Gemini Pro, WebSailor e busca profunda na internet. Descubra insights exclusivos sobre seu cliente ideal.">
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/enhanced-styles.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/enhanced-analysis.js') }}" as="script">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Header Ultra-Moderno -->
         <div class="header">
-            <h1><i class="fas fa-chart-line"></i> ARQV30 Enhanced</h1>
-            <p>Análise Ultra-Detalhada de Mercado com IA Avançada, WebSailor e Busca Profunda</p>
+            <h1>
+                <i class="fas fa-chart-line" style="margin-right: 16px;"></i>
+                ARQV30 Enhanced
+            </h1>
+            <p>
+                Análise Ultra-Detalhada de Mercado com <strong>Gemini Pro 1.5</strong>, 
+                <strong>WebSailor</strong> e <strong>Busca Profunda na Internet</strong>
+            </p>
         </div>
         
         <!-- Feature Highlight -->
         <div class="feature-highlight">
-            <h3><i class="fas fa-rocket"></i> Versão 2.0 - Funcionalidades Avançadas</h3>
+            <h3>
+                <i class="fas fa-rocket"></i>
+                Versão 2.0 - Funcionalidades Ultra-Avançadas
+            </h3>
             <div class="feature-list">
                 <div class="feature-item">
                     <i class="fas fa-robot"></i>
-                    <span>Gemini Pro Integration</span>
+                    <span>Gemini Pro 1.5</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-search"></i>
                     <span>Busca Profunda</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-ship"></i>
+                    <span>WebSailor Agent</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-paperclip"></i>
@@ -43,6 +72,10 @@
                 <div class="feature-item">
                     <i class="fas fa-brain"></i>
                     <span>IA Ultra-Detalhada</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Insights Exclusivos</span>
                 </div>
             </div>
         </div>
@@ -53,7 +86,7 @@
             <div class="status-bar">
                 <div class="status-indicator">
                     <div class="status-dot"></div>
-                    <span id="status-text">Sistema Online</span>
+                    <span id="status-text">Verificando sistema...</span>
                 </div>
                 <div>
                     <span id="version-info">v2.0.0</span>
@@ -67,69 +100,78 @@
                         <div>
                             <div class="form-group">
                                 <label for="segmento">
-                                    <i class="fas fa-bullseye"></i> Segmento de Mercado *
+                                    <i class="fas fa-bullseye"></i> 
+                                    Segmento de Mercado *
                                 </label>
                                 <input type="text" id="segmento" name="segmento" class="form-control" 
-                                       placeholder="Ex: Produtos Digitais, E-commerce, SaaS..." required>
-                                <small>O Gemini Pro pesquisará dados atualizados sobre este segmento</small>
+                                       placeholder="Ex: Produtos Digitais, E-commerce, SaaS, Educação Online..." 
+                                       required maxlength="255">
+                                <small>O Gemini Pro 1.5 pesquisará dados atualizados sobre este segmento</small>
                             </div>
                             
                             <div class="form-group">
                                 <label for="produto">
-                                    <i class="fas fa-box"></i> Produto/Serviço
+                                    <i class="fas fa-box"></i> 
+                                    Produto/Serviço
                                 </label>
                                 <input type="text" id="produto" name="produto" class="form-control" 
-                                       placeholder="Descreva seu produto ou serviço">
+                                       placeholder="Descreva seu produto ou serviço" maxlength="255">
                             </div>
                             
                             <div class="form-group">
                                 <label for="publico">
-                                    <i class="fas fa-users"></i> Público-Alvo
+                                    <i class="fas fa-users"></i> 
+                                    Público-Alvo
                                 </label>
                                 <input type="text" id="publico" name="publico" class="form-control" 
-                                       placeholder="Descreva seu público-alvo">
+                                       placeholder="Ex: Empreendedores 25-45 anos, Mães executivas..." maxlength="500">
                             </div>
                             
                             <div class="form-group">
                                 <label for="preco">
-                                    <i class="fas fa-dollar-sign"></i> Preço (R$)
+                                    <i class="fas fa-dollar-sign"></i> 
+                                    Preço (R$)
                                 </label>
                                 <input type="number" id="preco" name="preco" class="form-control" 
-                                       placeholder="997" step="0.01">
+                                       placeholder="997" step="0.01" min="0">
                             </div>
                         </div>
                         
                         <div>
                             <div class="form-group">
                                 <label for="concorrentes">
-                                    <i class="fas fa-chess"></i> Principais Concorrentes
+                                    <i class="fas fa-chess"></i> 
+                                    Principais Concorrentes
                                 </label>
                                 <input type="text" id="concorrentes" name="concorrentes" class="form-control" 
-                                       placeholder="Liste os principais concorrentes">
+                                       placeholder="Liste os principais concorrentes separados por vírgula">
                             </div>
                             
                             <div class="form-group">
                                 <label for="objetivoReceita">
-                                    <i class="fas fa-chart-bar"></i> Objetivo de Receita (R$)
+                                    <i class="fas fa-chart-bar"></i> 
+                                    Objetivo de Receita (R$)
                                 </label>
                                 <input type="number" id="objetivoReceita" name="objetivoReceita" class="form-control" 
-                                       placeholder="100000" step="0.01">
+                                       placeholder="100000" step="1000" min="0">
                             </div>
                             
                             <div class="form-group">
                                 <label for="orcamentoMarketing">
-                                    <i class="fas fa-megaphone"></i> Orçamento Marketing (R$)
+                                    <i class="fas fa-megaphone"></i> 
+                                    Orçamento Marketing (R$)
                                 </label>
                                 <input type="number" id="orcamentoMarketing" name="orcamentoMarketing" class="form-control" 
-                                       placeholder="50000" step="0.01">
+                                       placeholder="50000" step="1000" min="0">
                             </div>
                             
                             <div class="form-group">
                                 <label for="prazoLancamento">
-                                    <i class="fas fa-calendar"></i> Prazo de Lançamento
+                                    <i class="fas fa-calendar"></i> 
+                                    Prazo de Lançamento
                                 </label>
                                 <input type="text" id="prazoLancamento" name="prazoLancamento" class="form-control" 
-                                       placeholder="Ex: 3 meses, 6 meses...">
+                                       placeholder="Ex: 3 meses, 6 meses, 1 ano..." maxlength="100">
                             </div>
                         </div>
                     </div>
@@ -137,43 +179,56 @@
                     <!-- Search Query Field -->
                     <div class="form-group">
                         <label for="query">
-                            <i class="fas fa-search"></i> Pesquisa Profunda na Internet (Opcional)
+                            <i class="fas fa-search"></i> 
+                            Pesquisa Profunda na Internet (Opcional)
                         </label>
-                        <textarea id="query" name="query" class="form-control" rows="3" 
-                                  placeholder="Ex: tendências de mercado para produtos digitais em 2024, estratégias de marketing para SaaS, análise de concorrentes..."></textarea>
-                        <small>Descreva o que você quer pesquisar para enriquecer a análise</small>
+                        <textarea id="query" name="query" class="form-control" rows="3" maxlength="1000"
+                                  placeholder="Ex: tendências de mercado para produtos digitais em 2024, estratégias de marketing para SaaS, análise de concorrentes no segmento de educação online..."></textarea>
+                        <small>Descreva o que você quer pesquisar para enriquecer a análise com dados atualizados da internet</small>
                     </div>
                     
                     <!-- File Upload Section -->
                     <div class="form-group">
                         <label>
-                            <i class="fas fa-paperclip"></i> Anexos (Opcional)
+                            <i class="fas fa-paperclip"></i> 
+                            Anexos para Análise (Opcional)
                         </label>
                         <div class="upload-area" id="uploadArea">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p>Arraste arquivos aqui ou <strong>clique para selecionar</strong></p>
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
-                                Suportados: PDF, DOC, TXT, JSON, CSV, XLS (máx. 10MB)
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px;">
+                                Suportados: PDF, DOC, TXT, JSON, CSV, XLS (máx. 10MB cada)
                             </p>
-                            <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.json,.csv,.xlsx,.xls" style="display: none;">
+                            <input type="file" id="fileInput" multiple 
+                                   accept=".pdf,.doc,.docx,.txt,.json,.csv,.xlsx,.xls" 
+                                   style="display: none;">
                         </div>
                         <div class="attachment-list" id="attachmentList"></div>
-                        <small>Drivers mentais, provas visuais, perfis psicológicos, dados de pesquisa</small>
+                        <small>
+                            <strong>Tipos recomendados:</strong> 
+                            Drivers mentais, provas visuais, perfis psicológicos, dados de pesquisa, 
+                            análises de concorrentes, planilhas de métricas
+                        </small>
                     </div>
                     
                     <div class="form-group">
                         <label for="dadosAdicionais">
-                            <i class="fas fa-info-circle"></i> Dados Adicionais
+                            <i class="fas fa-info-circle"></i> 
+                            Dados Adicionais
                         </label>
-                        <textarea id="dadosAdicionais" name="dadosAdicionais" class="form-control" rows="4" 
-                                  placeholder="Informações adicionais relevantes para a análise..."></textarea>
+                        <textarea id="dadosAdicionais" name="dadosAdicionais" class="form-control" rows="4" maxlength="2000"
+                                  placeholder="Informações adicionais relevantes para a análise: contexto do mercado, experiências anteriores, insights específicos, dados internos..."></textarea>
                     </div>
                     
-                    <div style="text-align: center; margin-top: 30px;">
+                    <div style="text-align: center; margin-top: 40px;">
                         <button type="submit" class="btn btn-primary full-width">
                             <i class="fas fa-magic"></i>
-                            Gerar Análise Ultra-Detalhada
+                            Gerar Análise Ultra-Detalhada com IA
                         </button>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 12px;">
+                            <i class="fas fa-clock" style="margin-right: 6px;"></i>
+                            Tempo estimado: 30-60 segundos
+                        </p>
                     </div>
                 </form>
             </div>
@@ -185,15 +240,19 @@
             
             <!-- Results Section -->
             <div class="results" id="resultsSection">
-                <h2><i class="fas fa-chart-pie"></i> Análise Ultra-Detalhada Concluída</h2>
+                <h2>
+                    <i class="fas fa-chart-pie"></i> 
+                    Análise Ultra-Detalhada Concluída
+                </h2>
                 <div id="analysisResults"></div>
                 
-                <div style="margin-top: 30px; text-align: center;">
+                <div style="margin-top: 40px; text-align: center; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="generatePDF()">
                         <i class="fas fa-file-pdf"></i>
-                        Gerar PDF
+                        Gerar PDF Profissional
                     </button>
-                    <button class="btn btn-primary" onclick="resetForm()" style="margin-left: 15px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                    <button class="btn btn-primary" onclick="resetForm()" 
+                            style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
                         <i class="fas fa-redo"></i>
                         Nova Análise
                     </button>
@@ -203,11 +262,30 @@
         
         <!-- Footer -->
         <div class="footer">
-            <p>&copy; 2024 ARQV30 Enhanced - Análise de Mercado com IA Avançada</p>
+            <p>
+                &copy; 2024 <strong>ARQV30 Enhanced v2.0</strong> - 
+                Análise Ultra-Detalhada de Mercado com Inteligência Artificial Avançada
+            </p>
+            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8;">
+                Powered by <strong>Gemini Pro 1.5</strong> • <strong>WebSailor</strong> • <strong>Deep Search</strong>
+            </p>
         </div>
     </div>
     
     <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/enhanced-analysis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/enhanced-analysis.js') }}" defer></script>
+    
+    <!-- Service Worker para PWA (Opcional) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

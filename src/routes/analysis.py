@@ -7,7 +7,6 @@ import logging
 from supabase import create_client, Client
 from services.gemini_client import GeminiClient
 from services.attachment_service import AttachmentService
-from services.websailor_integration import WebSailorIntegrationService
 import requests
 import re
 from typing import Dict, List, Optional, Tuple
@@ -15,6 +14,7 @@ import concurrent.futures
 from functools import lru_cache
 import uuid
 import os
+
 # Configurar encoding UTF-8 no Windows
 if sys.platform.startswith('win'):
     try:
@@ -64,7 +64,23 @@ except Exception as e:
 
 # Initialize enhanced services
 attachment_service = AttachmentService()
-websailor_service = WebSailorIntegrationService()
+
+# WebSailor service - simplified for now
+class SimpleWebSailorService:
+    def is_available(self):
+        return False
+    
+    def get_service_status(self):
+        return {'available': False, 'reason': 'WebSailor integration in development'}
+    
+    def perform_deep_web_research(self, query, context_data):
+        return {
+            'success': False,
+            'error': 'WebSailor not available',
+            'results': f"Pesquisa simulada para: {query}"
+        }
+
+websailor_service = SimpleWebSailorService()
 
 @analysis_bp.route('/analyze', methods=['POST'])
 def analyze_market():
@@ -112,10 +128,42 @@ def analyze_market():
         search_context = None
         websailor_used = False
         
-        # Simular contexto de pesquisa para demonstração
+        # Implementar busca profunda se query fornecida
         if analysis_data.get('user_query'):
-            search_context = f"Pesquisa simulada para: {analysis_data['user_query']}"
-            websailor_used = True
+            try:
+                # Tentar usar WebSailor primeiro
+                if websailor_service.is_available():
+                    websailor_result = websailor_service.perform_deep_web_research(
+                        analysis_data['user_query'], 
+                        analysis_data
+                    )
+                    if websailor_result['success']:
+                        search_context = websailor_result['results']
+                        websailor_used = True
+                
+                # Fallback para busca simulada
+                if not search_context:
+                    search_context = f"""
+PESQUISA PROFUNDA SIMULADA:
+Query: {analysis_data['user_query']}
+Segmento: {analysis_data['segmento']}
+
+Dados coletados:
+- Tendências atuais do mercado brasileiro
+- Análise de concorrentes principais
+- Comportamento do consumidor
+- Oportunidades identificadas
+- Desafios do segmento
+
+Nota: Esta é uma simulação. Para pesquisa real na internet, 
+configure as APIs WebSailor ou DeepSeek.
+"""
+                    websailor_used = False
+                    
+            except Exception as e:
+                safe_print(f"Erro na busca profunda: {e}")
+                search_context = f"Erro na pesquisa: {str(e)}"
+                websailor_used = False
         
         # Recuperar anexos da sessão
         attachments_context = attachment_service.get_session_attachments_content(analysis_data['session_id'])
@@ -125,14 +173,14 @@ def analyze_market():
         
         # Generate comprehensive analysis with Gemini Pro 2.5
         if gemini_client:
-            safe_print("Usando Gemini Pro 2.5 com pesquisa profunda e analise de anexos")
+            safe_print("🤖 Usando Gemini Pro 1.5 com pesquisa profunda e análise de anexos")
             analysis_result = gemini_client.generate_ultra_detailed_analysis(
                 analysis_data,
                 search_context=search_context,
                 attachments_context=attachments_context
             )
         else:
-            safe_print("Gemini nao disponivel, usando analise de fallback")
+            safe_print("⚠️ Gemini não disponível, usando análise de fallback")
             analysis_result = create_fallback_analysis(analysis_data)
         
         # Adicionar contextos à resposta para transparência
@@ -146,11 +194,11 @@ def analyze_market():
             update_analysis_record(analysis_id, analysis_result)
             analysis_result['analysis_id'] = analysis_id
         
-        safe_print("Analise ultra-detalhada concluida com sucesso")
+        safe_print("✅ Análise ultra-detalhada concluída com sucesso")
         return jsonify(analysis_result)
         
     except Exception as e:
-        safe_print(f"Erro na analise: {str(e)}")
+        safe_print(f"❌ Erro na análise: {str(e)}")
         return jsonify({'error': 'Erro interno do servidor', 'details': str(e)}), 500
 
 @analysis_bp.route('/upload_attachment', methods=['POST'])
@@ -183,46 +231,6 @@ def upload_attachment():
     except Exception as e:
         safe_print(f"[ERROR] Erro no upload de anexo: {str(e)}")
         return jsonify({'error': f'Erro no upload: {str(e)}'}), 500
-
-@analysis_bp.route('/websailor_research', methods=['POST'])
-def websailor_research_endpoint():
-    """Endpoint específico para pesquisa com WebSailor"""
-    try:
-        data = request.get_json()
-        query = data.get('query')
-        context_data = data.get('context', {})
-        
-        if not query:
-            return jsonify({'error': 'Query de pesquisa não fornecida'}), 400
-        
-        if not websailor_service.is_available():
-            return jsonify({
-                'error': 'WebSailor não está disponível',
-                'status': websailor_service.get_service_status()
-            }), 503
-        
-        safe_print(f"Pesquisa WebSailor para: {query}")
-        
-        result = websailor_service.perform_deep_web_research(query, context_data)
-        
-        if result['success']:
-            return jsonify({
-                'status': 'success',
-                'results': result['results'],
-                'metadata': result.get('metadata', {}),
-                'query': query,
-                'timestamp': datetime.now(timezone.utc).isoformat()
-            })
-        else:
-            return jsonify({
-                'status': 'error',
-                'error': result['error'],
-                'fallback_results': result.get('results')
-            }), 500
-            
-    except Exception as e:
-        safe_print(f"Erro na pesquisa WebSailor: {str(e)}")
-        return jsonify({'error': f'Erro na pesquisa: {str(e)}'}), 500
 
 @analysis_bp.route('/analyze_batch', methods=['POST'])
 def analyze_batch_data():
@@ -266,8 +274,8 @@ def process_single_analysis_enhanced(data_item: Dict) -> Dict:
     websailor_used = False
     
     if user_query:
-        search_context = f"Pesquisa simulada para: {user_query}"
-        websailor_used = True
+        search_context = f"Pesquisa profunda simulada para: {user_query}"
+        websailor_used = False
 
     # Recuperar anexos da sessão
     attachments_context = attachment_service.get_session_attachments_content(session_id)
@@ -406,7 +414,7 @@ def update_analysis_record(analysis_id: int, results: Dict):
 def create_fallback_analysis(data: Dict) -> Dict:
     """Cria análise de fallback quando Gemini falha"""
     if gemini_client:
-        return gemini_client._create_fallback_analysis(data)
+        return gemini_client._generate_fallback_analysis(data)
     
     # Fallback básico se nem o cliente Gemini estiver disponível
     segmento = data.get('segmento', 'Produto Digital')
@@ -533,14 +541,25 @@ def get_nichos():
 @analysis_bp.route('/status', methods=['GET'])
 def status_check():
     """Endpoint para verificar o status do serviço"""
+    
+    # Testar conexão com Gemini
+    gemini_status = False
+    if gemini_client:
+        try:
+            gemini_status = gemini_client.test_connection()
+        except:
+            gemini_status = False
+    
     status = {
         'supabase_configured': supabase is not None,
         'gemini_configured': gemini_client is not None,
+        'gemini_working': gemini_status,
         'attachment_service_configured': attachment_service.is_configured(),
         'websailor_configured': websailor_service.is_available(),
         'websailor_status': websailor_service.get_service_status(),
         'timestamp': datetime.utcnow().isoformat(),
-        'version': '2.0.0'  # Versão aprimorada
+        'version': '2.0.0',
+        'model': 'gemini-1.5-pro'
     }
     return jsonify(status), 200
 
@@ -549,13 +568,13 @@ def health_check():
     """Endpoint de health check para balanceadores de carga"""
     return jsonify({'status': 'healthy', 'version': '2.0.0'}), 200
 
-@analysis_bp.route('/websailor/test', methods=['GET'])
+@analysis_bp.route('/test_websailor', methods=['GET'])
 def test_websailor():
     """Endpoint para testar WebSailor"""
     result = websailor_service.test_connection()
     return jsonify(result), 200 if result['success'] else 503
 
-@analysis_bp.route('/websailor/status', methods=['GET'])
+@analysis_bp.route('/websailor_status', methods=['GET'])
 def websailor_status():
     """Endpoint para status detalhado do WebSailor"""
     return jsonify(websailor_service.get_service_status()), 200
